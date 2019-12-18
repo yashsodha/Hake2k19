@@ -16,10 +16,10 @@ import {
   Button,
   ScrollView,
   FlatList,
+  TextInput
 } from 'react-native';
 import Dialogflow from 'react-native-dialogflow';
 import Dialogflow_V2 from 'react-native-dialogflow';
-import { TextInput } from 'react-native-gesture-handler';
 
 let chatArray = [];
 
@@ -55,12 +55,13 @@ class App extends Component {
         <View style={{ marginTop: 10, marginRight: 3 }}>
           <Text
             style={{
-              fontSize: 20,
+              fontSize: 13,
               alignSelf: 'flex-end',
               borderRadius: 14,
               padding: item.send ? 7 : 0,
               backgroundColor: '#22AAEB',
               color: 'white',
+              minWidth: 20
             }}>
             {item.send}
           </Text>
@@ -70,11 +71,13 @@ class App extends Component {
           <View style={{ marginTop: 10, marginLeft: 3 }}>
             <Text
               style={{
-                fontSize: 20,
+                fontSize: 13,
                 borderRadius: 14,
                 padding: item.receive ? 7 : 0,
                 backgroundColor: 'gray',
                 color: 'white',
+                marginBottom: 15,
+                width: "70%"
               }}>
               {item.receive}
             </Text>
@@ -89,6 +92,7 @@ class App extends Component {
       <View
         style={{
           flexDirection: 'row',
+          marginLeft: 10
         }}>
         <TextInput
           style={{ borderWidth: 2, width: '80%' }}
@@ -117,9 +121,7 @@ class App extends Component {
   };
 
   renderFooter = () => {
-    return (
-      <View style={{ padding: 50 }} />
-    );
+    return <View style={{ padding: 50 }} />;
   };
   render() {
     const { chatData } = this.state;
@@ -127,10 +129,9 @@ class App extends Component {
       <>
         <StatusBar barStyle="dark-content" />
         <SafeAreaView>
-          <View style={{ height: "99%" }}>
-
+          <View style={{ height: '99%' }}>
             <ScrollView
-              ref={ref => this.scrollView = ref}
+              ref={ref => (this.scrollView = ref)}
               onContentSizeChange={(contentWidth, contentHeight) => {
                 this.scrollView.scrollToEnd({ animated: true });
               }}>
