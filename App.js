@@ -11,30 +11,78 @@ import {
   SafeAreaView,
   View,
   Text,
+  Keyboard,
   StatusBar,
   Button,
   ScrollView,
   FlatList,
   TextInput,
+  Animated,
+  TouchableOpacity,
 } from 'react-native';
 import Dialogflow from 'react-native-dialogflow';
 import Dialogflow_V2 from 'react-native-dialogflow';
+import FeatherIcons from 'react-native-vector-icons/Feather';
 
 let chatArray = [];
 
 class App extends Component {
   constructor(props) {
     super(props);
+
+    this.keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        this.setState({ isPressed: false });
+      },
+    );
+
     this.state = {
       message: null,
       myMessage: null,
       botMessage: null,
+      animated: new Animated.Value(0),
+      opacityA: new Animated.Value(1),
       chatData: [],
     };
     Dialogflow.setConfiguration(
       'cec9711b9662437686a454a19496065d',
       Dialogflow.LANG_ENGLISH,
     );
+  }
+
+  _runAnimation() {
+    const { animated, opacityA } = this.state;
+
+    Animated.loop(
+      Animated.parallel([
+        Animated.timing(animated, {
+          toValue: 1,
+          duration: 1000,
+
+        }),
+        Animated.timing(opacityA, {
+          toValue: 0,
+          duration: 1000,
+
+        }),
+      ])
+    ).start();
+  }
+  _stopAnimation() {
+    const { animated, opacityA } = this.state;
+    Animated.loop(
+      Animated.parallel([
+        Animated.timing(animated),
+        Animated.timing(opacityA),
+      ])
+    ).stop();
+  }
+
+  _onPress = () => {
+    this.setState({
+      isPressed: !this.state.isPressed,
+    });
   }
 
   handleResponse = res => {
@@ -60,7 +108,7 @@ class App extends Component {
               padding: item.send ? 7 : 0,
               backgroundColor: '#22AAEB',
               color: 'white',
-              minWidth: 20
+              minWidth: 20,
             }}>
             {item.send}
           </Text>
@@ -76,7 +124,7 @@ class App extends Component {
                 backgroundColor: 'gray',
                 color: 'white',
                 marginBottom: 15,
-                width: "70%"
+                width: '70%',
               }}>
               {item.receive}
             </Text>
@@ -91,11 +139,17 @@ class App extends Component {
       <View
         style={{
           flexDirection: 'row',
-          marginLeft: 10
+          display: 'flex',
+          alignItems: 'center',
+          marginLeft: 10,
         }}>
+        <View style={{}}>
+          <TouchableOpacity onPress={this._onPress}>
+            {this._micButton()}
+          </TouchableOpacity>
+        </View>
         <TextInput
-          style={{ borderWidth: 2, width: '80%' }}
-          onFocus={this.scrollView && this.scrollView.scrollToEnd()}
+          style={{ borderWidth: 2, height: 35, width: '70%' }}
           value={this.state.message}
           onChangeText={message =>
             this.setState({
@@ -103,7 +157,7 @@ class App extends Component {
             })
           }
         />
-        <View style={{ margin: 5, marginTop: 10, width: '15%' }}>
+        <View style={{ marginLeft: 5 }}>
           <Button
             title="Send"
             onPress={() => {
@@ -118,6 +172,55 @@ class App extends Component {
       </View>
     );
   };
+
+  _micButton() {
+    const { isPressed, animated, opacityA } = this.state;
+    if (isPressed) {
+      //some function
+      this._runAnimation();
+      return (
+        <View style={{
+          width: 40,
+          height: 40,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <Animated.View style={{
+            width: 40,
+            position: 'absolute',
+            bottom: 0,
+            height: 40,
+            borderRadius: 50,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: opacityA,
+            backgroundColor: '#900',
+            transform: [
+              {
+                scale: animated,
+              },
+            ],
+          }} />
+          <FeatherIcons name="mic" size={25} color="#fff" />
+        </View >
+      );
+    } else {
+      return (
+        <View style={{
+          width: 40,
+          height: 40,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: 50,
+        }}>
+          <FeatherIcons name="mic" size={25} color="#900" />
+        </View>
+      );
+    }
+  }
 
   renderFooter = () => {
     return <View style={{ padding: 50 }} />;
