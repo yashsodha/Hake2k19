@@ -1,4 +1,3 @@
-/* eslint-disable react-native/no-inline-styles */
 /**
  * Sample React Native App
  * https://github.com/facebook/react-native
@@ -16,7 +15,7 @@ import {
   Button,
   ScrollView,
   FlatList,
-  TextInput
+  TextInput,
 } from 'react-native';
 import Dialogflow from 'react-native-dialogflow';
 import Dialogflow_V2 from 'react-native-dialogflow';
