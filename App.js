@@ -21,14 +21,17 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Dialogflow from 'react-native-dialogflow';
-import Dialogflow_V2 from 'react-native-dialogflow';
+import Voice from 'react-native-voice';
 import FeatherIcons from 'react-native-vector-icons/Feather';
+import Tts from 'react-native-tts';
 
-let chatArray = [];
 
 class App extends Component {
   constructor(props) {
     super(props);
+    Voice.onSpeechStart = this.onSpeechStartHandler;
+    Voice.onSpeechEnd = this.onSpeechEndHandler;
+    Voice.onSpeechResults = this.onSpeechResultsHandler;
 
     this.keyboardDidShowListener = Keyboard.addListener(
       'keyboardDidShow',
@@ -48,6 +51,21 @@ class App extends Component {
     Dialogflow.setConfiguration(
       'cec9711b9662437686a454a19496065d',
       Dialogflow.LANG_ENGLISH,
+    );
+  }
+
+  onSpeechStartHandler = (e) => {
+    // console.log('----->onSpeechStartHandler e', e);
+  }
+  onSpeechEndHandler = (e) => {
+    // console.log('----->onSpeechEndHandler e', e);
+  }
+  onSpeechResultsHandler = (result) => {
+    // console.log('-----> result', result);
+    Dialogflow.requestQuery(
+      result.value[0],
+      this.handleResponse,
+      error => console.log(error),
     );
   }
 
@@ -80,19 +98,43 @@ class App extends Component {
   }
 
   _onPress = () => {
+    const { isPressed } = this.state;
+    if (!isPressed) {
+      // Dialogflow.startListening(res => {
+      //   console.log('-----> result', res);
+      //   if (chatData.length > 0) {
+      //     if (!(chatData[chatData.length - 1].send === res.result.resolvedQuery &&
+      //       chatData[chatData.length - 1].receive === res.result.fulfillment.speech)) {
+      //       this.handleResponse(res);
+      //     }
+      //   }
+      //   else {
+      //     this.handleResponse(res);
+      //   }
+      // }, error => {
+      //   console.log('----->error ', error);
+      // });
+      Voice.start('en-IN');
+    }
+    else {
+      Voice.stop();
+      // Dialogflow.finishListening();
+    }
     this.setState({
-      isPressed: !this.state.isPressed,
+      isPressed: !isPressed,
     });
   }
 
   handleResponse = res => {
-    chatArray.push({
+    const { chatData } = this.state;
+    Tts.speak(res.result.fulfillment.speech);
+    chatData.push({
       send: res.result.resolvedQuery,
       receive: res.result.fulfillment.speech,
     });
     this.setState({
       message: null,
-      chatData: chatArray,
+      chatData,
     });
   };
 
@@ -241,7 +283,7 @@ class App extends Component {
                 data={chatData}
                 extraData={chatData}
                 renderItem={this.renderChats}
-                keyExtractor={index => console.log('---->index', index)}
+                keyExtractor={(item, index) => index.toString()}
                 ListEmptyComponent={this.renderFooter}
               />
             </ScrollView>
