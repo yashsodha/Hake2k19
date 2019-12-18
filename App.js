@@ -8,7 +8,15 @@
  */
 
 import React, { Component } from 'react';
-import { SafeAreaView, View, Text, StatusBar, Button, ScrollView, FlatList } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  Text,
+  StatusBar,
+  Button,
+  ScrollView,
+  FlatList,
+} from 'react-native';
 import Dialogflow from 'react-native-dialogflow';
 import Dialogflow_V2 from 'react-native-dialogflow';
 import { TextInput } from 'react-native-gesture-handler';
@@ -36,14 +44,14 @@ class App extends Component {
       receive: res.result.fulfillment.speech,
     });
     this.setState({
+      message: null,
       chatData: chatArray,
     });
   };
 
   renderChats = ({ item }) => {
-    console.log('---->item', item);
     return (
-      <ScrollView>
+      <View>
         <View style={{ marginTop: 10, marginRight: 3 }}>
           <Text
             style={{
@@ -72,53 +80,69 @@ class App extends Component {
             </Text>
           </View>
         )}
-      </ScrollView>
+      </View>
     );
   };
 
+  renderChatBox = () => {
+    return (
+      <View
+        style={{
+          flexDirection: 'row',
+        }}>
+        <TextInput
+          style={{ borderWidth: 2, width: '80%' }}
+          onFocus={this.scrollView && this.scrollView.scrollToEnd()}
+          value={this.state.message}
+          onChangeText={message =>
+            this.setState({
+              message,
+            })
+          }
+        />
+        <View style={{ margin: 5, marginTop: 10, width: '15%' }}>
+          <Button
+            title="Send"
+            onPress={() => {
+              Dialogflow.requestQuery(
+                this.state.message,
+                this.handleResponse,
+                error => console.log(error),
+              );
+            }}
+          />
+        </View>
+      </View>
+    );
+  };
+
+  renderFooter = () => {
+    return (
+      <View style={{ padding: 50 }} />
+    );
+  };
   render() {
     const { chatData } = this.state;
     return (
       <>
         <StatusBar barStyle="dark-content" />
         <SafeAreaView>
-          <View style={{ height: '100%' }}>
-            <FlatList
-              data={chatData}
-              extraData={chatData}
-              renderItem={this.renderChats}
-              keyExtractor={index => console.log('---->index', index)}
-            />
+          <View style={{ height: "99%" }}>
 
-            <View
-              style={{
-                flexDirection: 'row',
-                alignSelf: 'flex-end',
-                position: 'absolute',
-                bottom: 15,
+            <ScrollView
+              ref={ref => this.scrollView = ref}
+              onContentSizeChange={(contentWidth, contentHeight) => {
+                this.scrollView.scrollToEnd({ animated: true });
               }}>
-              <TextInput
-                style={{ borderWidth: 2, width: '80%' }}
-                value={this.state.message}
-                onChangeText={message =>
-                  this.setState({
-                    message,
-                  })
-                }
+              <FlatList
+                data={chatData}
+                extraData={chatData}
+                renderItem={this.renderChats}
+                keyExtractor={index => console.log('---->index', index)}
+                ListEmptyComponent={this.renderFooter}
               />
-              <View style={{ margin: 5, marginTop: 10, width: '15%' }}>
-                <Button
-                  title="Send"
-                  onPress={() => {
-                    Dialogflow.requestQuery(
-                      this.state.message,
-                      this.handleResponse,
-                      error => console.log(error),
-                    );
-                  }}
-                />
-              </View>
-            </View>
+            </ScrollView>
+            {this.renderChatBox()}
           </View>
         </SafeAreaView>
       </>
