@@ -24,7 +24,7 @@ import Dialogflow from 'react-native-dialogflow';
 import Voice from 'react-native-voice';
 import FeatherIcons from 'react-native-vector-icons/Feather';
 import Tts from 'react-native-tts';
-
+import SplashScreen from 'react-native-splash-screen';
 
 class App extends Component {
   constructor(props) {
@@ -52,6 +52,10 @@ class App extends Component {
       'cec9711b9662437686a454a19496065d',
       Dialogflow.LANG_ENGLISH,
     );
+  }
+
+  componentDidMount() {
+    SplashScreen.hide();
   }
 
   onSpeechStartHandler = (e) => {
